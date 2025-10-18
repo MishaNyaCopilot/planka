@@ -52,6 +52,50 @@ Found a bug or have a feature request? Check out our [Contributing Guide](https:
 
 For setting up the project locally, see the [development section](https://docs.planka.cloud/docs/category/development/).
 
+## Deployment with Traefik
+
+This project includes a production-ready setup using Docker Compose and Traefik as a reverse proxy.
+
+### Features:
+- **Traefik Reverse Proxy**: Handles all incoming traffic and routes it to the appropriate service.
+- **Automatic HTTPS**: Provides SSL certificates from Let's Encrypt automatically.
+- **Telegram Bot**: An admin bot for creating new users on the fly.
+- **S3-Compatible Storage**: Uses MinIO for avatar and attachment storage.
+
+### Prerequisites:
+
+1.  A server with Docker and Docker Compose installed.
+2.  A domain name (e.g., `planka.your-domain.com`) pointed to your server's IP address.
+
+### Configuration:
+
+1.  Copy the example environment file:
+    ```sh
+    cp .env.example .env
+    ```
+2.  Open the `.env` file and fill in the required values:
+    - `PLANKA_DOMAIN`: Your domain name for Planka.
+    - `LETSENCRYPT_EMAIL`: Your email address for SSL certificate registration.
+    - `MINIO_ROOT_PASSWORD`: A secure password for MinIO.
+    - `TELEGRAM_TOKEN`: Your Telegram bot token from @BotFather.
+    - `TELEGRAM_ADMIN_IDS`: Your numeric Telegram User ID.
+    - `PLANKA_ADMIN_EMAIL` & `PLANKA_ADMIN_PASSWORD`: The credentials the bot will use to authenticate with Planka's API.
+
+### Running the Application:
+
+Once the `.env` file is configured, simply run:
+
+```sh
+docker-compose up -d
+```
+
+Your Planka instance will be available at `https://${PLANKA_DOMAIN}`.
+
+### Telegram Bot Usage:
+
+- Find your bot in Telegram and send `/start`.
+- Use the inline buttons to create users via the detailed or quick-generation flow.
+
 **Thanks to all our contributors!**
 
 [![Contributors](https://contrib.rocks/image?repo=plankanban/planka)](https://github.com/plankanban/planka/graphs/contributors)
