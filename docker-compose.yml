@@ -2,6 +2,8 @@ services:
   traefik:
     image: "traefik:v2.11"
     container_name: "traefik"
+    networks:
+      - planka-net
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -38,6 +40,10 @@ services:
       - S3_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
       - S3_BUCKET=planka
       - S3_FORCE_PATH_STYLE=true
+      - DEFAULT_ADMIN_EMAIL=${PLANKA_ADMIN_EMAIL}
+      - DEFAULT_ADMIN_PASSWORD=${PLANKA_ADMIN_PASSWORD}
+      - DEFAULT_ADMIN_NAME=Planka Admin
+      - DEFAULT_ADMIN_USERNAME=planka_admin
     healthcheck:
       test: ["CMD", "node", "./healthcheck.js"]
       interval: 10s
@@ -55,6 +61,8 @@ services:
       - "traefik.http.routers.planka.entrypoints=websecure"
       - "traefik.http.routers.planka.tls.certresolver=myresolver"
       - "traefik.http.services.planka.loadbalancer.server.port=1337"
+    networks:
+      - planka-net
 
   postgres:
     image: postgres:16-alpine
@@ -69,6 +77,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - planka-net
 
   minio:
     image: minio/minio:latest
@@ -90,6 +100,8 @@ services:
       - "traefik.http.routers.minio.entrypoints=websecure"
       - "traefik.http.routers.minio.tls.certresolver=myresolver"
       - "traefik.http.services.minio.loadbalancer.server.port=9001"
+    networks:
+      - planka-net
 
   create-buckets:
     image: minio/mc
@@ -103,6 +115,8 @@ services:
       /usr/bin/mc mb myminio/planka -p;
       /usr/bin/mc policy set download myminio/planka;
       "
+    networks:
+      - planka-net
 
   telegram-bot:
     build:
@@ -114,9 +128,11 @@ services:
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - TELEGRAM_ADMIN_IDS=${TELEGRAM_ADMIN_IDS}
-      - PLANKA_API_URL=http://planka:1337/api
+      - PLANKA_API_URL=https://${PLANKA_DOMAIN}/api
       - PLANKA_ADMIN_EMAIL=${PLANKA_ADMIN_EMAIL}
       - PLANKA_ADMIN_PASSWORD=${PLANKA_ADMIN_PASSWORD}
+    networks:
+      - planka-net
 
 volumes:
   favicons:
@@ -126,3 +142,7 @@ volumes:
   db-data:
   minio-data:
   letsencrypt:
+
+networks:
+  planka-net:
+    driver: bridge
