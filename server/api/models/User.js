@@ -246,6 +246,7 @@ const PERSONAL_FIELD_NAMES = [
   'defaultEditorMode',
   'defaultHomeView',
   'defaultProjectsOrder',
+  'telegramChatId',
 ];
 
 const INTERNAL = {
@@ -313,6 +314,12 @@ module.exports = {
       type: 'string',
       isNotEmptyString: true,
       allowNull: true,
+    },
+    telegramChatId: {
+      type: 'string',
+      isNotEmptyString: true,
+      allowNull: true,
+      columnName: 'telegram_chat_id',
     },
     language: {
       type: 'string',

@@ -104,6 +104,29 @@ module.exports = {
       mentionUserIds = _.difference(_.intersection(mentionUserIds, boardMemberUserIds), [
         comment.userId,
       ]);
+
+      if (mentionUserIds.length > 0) {
+        const mentionedUsers = await User.find({
+          id: mentionUserIds,
+        }).meta({
+          skipACL: true,
+        });
+
+        const t = sails.helpers.utils.makeTranslator();
+        const markdownCardLink = `[${escapeMarkdown(values.card.name)}](${sails.config.custom.baseUrl}/cards/${values.card.id})`;
+
+        for (const user of mentionedUsers) {
+          if (user.telegramChatId) {
+            const message = t(
+              '%s mentioned you in a comment on card %s',
+              values.user.name,
+              markdownCardLink,
+            ) + `:\n\n> ${mentionMarkupToText(comment.text)}`;
+
+            await sails.helpers.notifications.sendTelegramMention(user.telegramChatId, message);
+          }
+        }
+      }
     }
 
     const mentionUserIdsSet = new Set(mentionUserIds);

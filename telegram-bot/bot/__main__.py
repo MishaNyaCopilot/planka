@@ -6,9 +6,27 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+from aiohttp import web
 
 from bot.handlers import admin
 from bot.api.planka import get_planka_token
+
+
+async def notify_handler(request):
+    bot = request.app['bot']
+    try:
+        data = await request.json()
+        chat_id = data.get('chat_id')
+        message = data.get('message')
+
+        if not chat_id or not message:
+            return web.Response(status=400, text="Missing chat_id or message")
+
+        await bot.send_message(chat_id=chat_id, text=message, parse_mode=ParseMode.MARKDOWN)
+        return web.Response(text="OK")
+    except Exception as e:
+        logging.error(f"Error in notify_handler: {e}")
+        return web.Response(status=500, text="Internal Server Error")
 
 async def main():
     # --- Environment Variables ---
@@ -25,7 +43,6 @@ async def main():
     ADMIN_IDS = [int(admin_id) for admin_id in ADMIN_IDS_STR.split(',')]
 
     # --- Dispatcher and Bot Setup ---
-    # Authenticate with Planka on startup to get the token
     logging.info("Authenticating with Planka API on startup...")
     planka_token = get_planka_token(PLANKA_API_URL, PLANKA_ADMIN_EMAIL, PLANKA_ADMIN_PASSWORD)
 
@@ -35,19 +52,31 @@ async def main():
     
     logging.info("Successfully authenticated with Planka API.")
 
-    # Pass token and other data to all handlers through the dispatcher
     dp = Dispatcher(planka_token=planka_token, planka_api_url=PLANKA_API_URL)
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     # --- Register handlers ---
-    # Apply admin filter to all handlers in the admin router
     admin.router.message.filter(admin.IsAdmin(ADMIN_IDS))
     admin.router.callback_query.filter(admin.IsAdmin(ADMIN_IDS))
     dp.include_router(admin.router)
 
+    # --- Web App Setup ---
+    app = web.Application()
+    app.add_routes([web.post('/notify', notify_handler)])
+    app['bot'] = bot  # Make bot instance available to handlers
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8080)
+    await site.start()
+    logging.info("Web server started on port 8080")
+
     # --- Start Polling ---
     logging.info("Starting bot polling...")
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await runner.cleanup()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)

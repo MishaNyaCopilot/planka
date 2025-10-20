@@ -163,6 +163,12 @@ module.exports = {
       maxLength: 128,
       allowNull: true,
     },
+    telegramChatId: {
+      type: 'string',
+      isNotEmptyString: true,
+      maxLength: 128,
+      allowNull: true,
+    },
     language: {
       type: 'string',
       isIn: User.LANGUAGES,
@@ -252,6 +258,7 @@ module.exports = {
         'avatar',
         'phone',
         'organization',
+        'telegramChatId',
         'language',
         'subscribeToOwnCards',
         'subscribeToCardWhenCommenting',

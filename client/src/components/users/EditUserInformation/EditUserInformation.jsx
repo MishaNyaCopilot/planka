@@ -30,8 +30,9 @@ const EditUserInformation = React.memo(({ id, onUpdate }) => {
       name: user.name,
       phone: user.phone,
       organization: user.organization,
+      telegramChatId: user.telegramChatId,
     }),
-    [user.name, user.phone, user.organization],
+    [user.name, user.phone, user.organization, user.telegramChatId],
   );
 
   const [data, handleFieldChange] = useForm(() => ({
@@ -39,6 +40,7 @@ const EditUserInformation = React.memo(({ id, onUpdate }) => {
     ...defaultData,
     phone: defaultData.phone || '',
     organization: defaultData.organization || '',
+    telegramChatId: defaultData.telegramChatId || '',
   }));
 
   const cleanData = useMemo(
@@ -47,6 +49,7 @@ const EditUserInformation = React.memo(({ id, onUpdate }) => {
       name: data.name.trim(),
       phone: data.phone.trim() || null,
       organization: data.organization.trim() || null,
+      telegramChatId: data.telegramChatId.trim() || null,
     }),
     [data],
   );
@@ -95,6 +98,15 @@ const EditUserInformation = React.memo(({ id, onUpdate }) => {
         fluid
         name="organization"
         value={data.organization}
+        maxLength={128}
+        className={styles.field}
+        onChange={handleFieldChange}
+      />
+      <div className={styles.text}>{t('common.telegramChatId', 'Telegram Chat ID')}</div>
+      <Input
+        fluid
+        name="telegramChatId"
+        value={data.telegramChatId}
         maxLength={128}
         className={styles.field}
         onChange={handleFieldChange}
