@@ -248,9 +248,7 @@ export default {
       others: 'Teised',
       passwordIsSet: null,
       phone: 'Telefon',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA kasutab <1><0>Apprise</0></1> teavitusteenuse, et teavitada üle 100 populaarset teenust.',
-      port: null,
+            port: null,
       preferences: 'Eelistused',
       pressPasteShortcutToAddAttachmentFromClipboard:
         "Näpunäide: vajutage Ctrl-V (Cmd-V Mac'il) manuse lisamiseks kleebist.",

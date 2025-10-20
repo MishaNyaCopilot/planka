@@ -258,9 +258,7 @@ export default {
       others: 'Andere',
       passwordIsSet: null,
       phone: 'Telefon',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA verwendet <1><0>Apprise</0></1>, um Benachrichtigungen an über 100 beliebte Dienste zu senden.',
-      port: null,
+            port: null,
       preferences: 'Voreinstellungen',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Tipp: Drücken Sie STRG-V (Cmd-V auf Mac), um einen Anhang aus der Zwischenablage hinzuzufügen.',

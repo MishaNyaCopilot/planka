@@ -249,9 +249,7 @@ export default {
       others: 'Others',
       passwordIsSet: 'Password is set',
       phone: 'Phone',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA uses <1><0>Apprise</0></1> to send notifications to over 100 popular services.',
-      port: 'Port',
+            port: 'Port',
       preferences: 'Preferences',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Tip: press Ctrl-V (Cmd-V on Mac) to add an attachment from the clipboard.',

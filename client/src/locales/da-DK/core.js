@@ -249,9 +249,7 @@ export default {
       others: 'Andre',
       passwordIsSet: null,
       phone: 'Telefon',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA bruger <1><0>Apprise</0></1> til at sende notifikationer til over 100 populære tjenester.',
-      port: null,
+            port: null,
       preferences: 'Præferencer',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Tip: Tryk Ctrl-V (Cmd-V på Mac) for at vedhæfte direkte fra udklipsholder.',

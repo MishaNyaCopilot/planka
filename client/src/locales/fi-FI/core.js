@@ -244,9 +244,7 @@ export default {
       others: 'Muut',
       passwordIsSet: null,
       phone: 'Puhelin',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA käyttää <1><0>Apprise</0></1> lähettääkseen ilmoituksia yli 100 suosittuun palveluun.',
-      port: null,
+            port: null,
       preferences: 'Asetukset',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Vinkki: paina Ctrl-V (tai Cmd-V Macilla) lisätäksesi liitteen leikepöydältä.',

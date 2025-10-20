@@ -252,9 +252,7 @@ export default {
       others: 'Autres',
       passwordIsSet: null,
       phone: 'Téléphone',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA utilise <1><0>Apprise</0></1> pour envoyer des notifications vers plus de 100 services populaires.',
-      port: null,
+            port: null,
       preferences: 'Préférences',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Conseil: appuyer sur Ctrl-V (Cmd-V sur Mac) pour ajouter une pièce jointe depuis le presse-papiers',

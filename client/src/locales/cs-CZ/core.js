@@ -245,9 +245,7 @@ export default {
       others: 'Jiné',
       passwordIsSet: null,
       phone: 'Telefon',
-      plankaUsesAppriseToSendNotificationsToOver100PopularServices:
-        'PLANKA používá <1><0>Apprise</0></1> k zasílání oznámení do více než 100 oblíbených služeb.',
-      port: null,
+            port: null,
       preferences: 'Volby',
       pressPasteShortcutToAddAttachmentFromClipboard:
         'Tip: stisknutím Ctrl-V (Cmd-V na Macu) přidáte přílohu ze schránky.',
