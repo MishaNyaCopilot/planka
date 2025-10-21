@@ -13,5 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the content of the local src directory to the working directory
 COPY bot/ ./bot/
 
-# Command to run the application
-CMD ["python", "-m", "bot"]
+COPY wait_for_planka.py .
+
+# Command: Wait then run bot
+# CMD ["python", "wait_for_planka.py" , "&&", "python", "-m", "bot"]

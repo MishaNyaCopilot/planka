@@ -24,6 +24,7 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    allowedHosts: [process.env.PLANKA_DOMAIN || 'localhost'],
   },
   build: {
     target: browserslistToEsbuild(['>0.2%', 'not dead', 'not op_mini all']),

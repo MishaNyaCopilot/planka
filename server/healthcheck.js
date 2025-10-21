@@ -3,7 +3,7 @@
 const http = require('http');
 
 const options = {
-  host: 'localhost',
+  host: 'http://localhost:1337/api/bootstrap',
   port: 1337,
   timeout: 2000,
 };

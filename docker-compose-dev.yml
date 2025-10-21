@@ -30,6 +30,9 @@ services:
     pull_policy: never
     command: ["bash", "-c", "npm install && npm rebuild && npm run db:init && npm start"]
     restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./server:/app
       - /app/node_modules
@@ -38,39 +41,58 @@ services:
     environment:
       - BASE_URL=https://${PLANKA_DOMAIN}
       - DATABASE_URL=postgresql://postgres@postgres/planka
-      - SECRET_KEY=notsecretkey
-      - S3_ENDPOINT=minio:9000
-      - S3_REGION=us-east-1
-      - S3_ACCESS_KEY_ID=minio_user
-      - S3_SECRET_ACCESS_KEY=minio_password
-      - S3_BUCKET=planka
-      - S3_FORCE_PATH_STYLE=true
-    healthcheck:
-      test: ["CMD", "node", "./healthcheck.js"]
-      interval: 10s
-      timeout: 2s
-      retries: 5
-      start_period: 15s
+      - SECRET_KEY=${PLANKA_SECRET_KEY}
+      # - S3_ENDPOINT=minio:9000
+      # - S3_REGION=${MINIO_REGION}
+      # - S3_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      # - S3_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+      # - S3_BUCKET=planka
+      # - S3_FORCE_PATH_STYLE=true
+      - DEFAULT_ADMIN_EMAIL=${PLANKA_ADMIN_EMAIL}
+      - DEFAULT_ADMIN_PASSWORD=${PLANKA_ADMIN_PASSWORD}
+      - DEFAULT_ADMIN_NAME=Planka Admin
+      - DEFAULT_ADMIN_USERNAME=planka_admin
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:1337/api/bootstrap || exit 1"]
+    #   interval: 10s
+    #   timeout: 10s  # Больше на response (Sails может лагать)
+    #   retries: 10   # Больше попыток
+    #   start_period: 60s  # Полные 60s на npm install/db:init/nodemon lift
     networks:
       - planka-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.planka.rule=Host(`${PLANKA_DOMAIN}`)"
-      - "traefik.http.routers.planka.entrypoints=websecure"
-      - "traefik.http.routers.planka.tls.certresolver=myresolver"
-      - "traefik.http.services.planka.loadbalancer.server.port=1337"
+      - "traefik.http.services.planka-backend.loadbalancer.server.port=1337"
+      - "traefik.http.services.planka-backend.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.planka-backend.rule=Host(`planka.projects8.ru`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
+      - "traefik.http.routers.planka-backend.entrypoints=websecure"
+      - "traefik.http.routers.planka-backend.tls.certresolver=myresolver"
+      - "traefik.http.routers.planka-backend.priority=100"  # Выше приоритета frontend
 
   planka-client:
-    image: planka-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.client.dev
+    image: planka-client-dev
     pull_policy: never
-    command: ["bash", "-c", "npm install && npx vite --host"]
     restart: on-failure
+    command: ["npx", "vite", "--host"]
     volumes:
-      - ./client:/app
+      - /app/node_modules
     ports:
       - 3000:3000
+    environment:
+      - VITE_SERVER_BASE_URL=https://${PLANKA_DOMAIN}
+      - PLANKA_DOMAIN=${PLANKA_DOMAIN}
     networks:
       - planka-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.planka-frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.planka-frontend.rule=Host(`planka.projects8.ru`)"  # Без Path — ловит остальное
+      - "traefik.http.routers.planka-frontend.entrypoints=websecure"
+      - "traefik.http.routers.planka-frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.planka-frontend.priority=10"  # Ниже backend
 
   postgres:
     image: postgres:16-alpine
@@ -93,46 +115,47 @@ services:
     networks:
       - planka-net
 
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    environment:
-      - MINIO_ROOT_USER=minio_user
-      - MINIO_ROOT_PASSWORD=minio_password
-      - MINIO_API_CORS_ALLOW_ORIGIN=https://${PLANKA_DOMAIN},https://minio.${PLANKA_DOMAIN}
-    volumes:
-      - minio-data:/data
-    networks:
-      - planka-net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.minio.rule=Host(`minio.${PLANKA_DOMAIN}`)"
-      - "traefik.http.routers.minio.entrypoints=websecure"
-      - "traefik.http.routers.minio.tls.certresolver=myresolver"
-      - "traefik.http.services.minio.loadbalancer.server.port=9001"
+  # minio:
+  #   image: minio/minio:latest
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     - MINIO_ROOT_USER=minio_user
+  #     - MINIO_ROOT_PASSWORD=minio_password
+  #     - MINIO_API_CORS_ALLOW_ORIGIN=https://${PLANKA_DOMAIN},https://minio.${PLANKA_DOMAIN}
+  #   volumes:
+  #     - minio-data:/data
+  #   networks:
+  #     - planka-net
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.minio.rule=Host(`minio.${PLANKA_DOMAIN}`)"
+  #     - "traefik.http.routers.minio.entrypoints=websecure"
+  #     - "traefik.http.routers.minio.tls.certresolver=myresolver"
+  #     - "traefik.http.services.minio.loadbalancer.server.port=9001"
 
-  create-buckets:
-    image: minio/mc
-    depends_on:
-      minio:
-        condition: service_healthy
-    environment:
-      - MC_HOST_myminio=http://minio_user:minio_password@minio:9000
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc mb myminio/planka -p;
-      /usr/bin/mc policy set download myminio/planka;
-      "
-    networks:
-      - planka-net
+  # create-buckets:
+  #   image: minio/mc
+  #   depends_on:
+  #     minio:
+  #       condition: service_healthy
+  #   environment:
+  #     - MC_HOST_myminio=http://minio_user:minio_password@minio:9000
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #     /usr/bin/mc mb myminio/planka -p;
+  #     /usr/bin/mc policy set download myminio/planka;
+  #     "
+  #   networks:
+  #     - planka-net
 
   telegram-bot:
     build:
       context: ./telegram-bot
     restart: unless-stopped
+    command: ["python", "wait_for_planka.py"]
     depends_on:
-      planka:
-        condition: service_healthy
+        planka:
+          condition: service_started
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - TELEGRAM_ADMIN_IDS=${TELEGRAM_ADMIN_IDS}
@@ -144,9 +167,9 @@ services:
 
 
 volumes:
-  db-data:
-  minio-data:
-  letsencrypt:
+   db-data:
+   # minio-data:
+   letsencrypt:
 
 networks:
   planka-net:
