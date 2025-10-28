@@ -105,6 +105,7 @@
 
 const { isDueDate, isStopwatch } = require('../../../utils/validators');
 const { idInput } = require('../../../utils/inputs');
+const escapeHtml = require('escape-html');
 
 const Errors = {
   NOT_ENOUGH_RIGHTS: {
@@ -200,6 +201,14 @@ module.exports = {
       'isDueCompleted',
       'stopwatch',
     ]);
+
+    // Sanitize user input to prevent XSS
+    if (values.name) {
+      values.name = escapeHtml(values.name);
+    }
+    if (values.description) {
+      values.description = escapeHtml(values.description);
+    }
 
     const card = await sails.helpers.cards.createOne
       .with({

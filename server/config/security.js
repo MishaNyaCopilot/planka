@@ -28,9 +28,11 @@ module.exports.security = {
    */
 
   cors: {
-    allRoutes: true,
-    allowOrigins: ['http://localhost:3000'],
-    allowRequestHeaders: ['Authorization'],
+    allRoutes: false,
+    allowOrigins: process.env.NODE_ENV === 'production'
+      ? ['https://planka.projects8.ru']  // Replace with your actual domain
+      : ['http://localhost:3000'],
+    allowRequestHeaders: ['Authorization', 'Content-Type', 'X-CSRF-Token'],
     allowCredentials: true,
   },
 
@@ -48,5 +50,5 @@ module.exports.security = {
    *
    */
 
-  // csrf: false,
+  csrf: true,
 };

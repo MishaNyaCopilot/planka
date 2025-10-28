@@ -10,7 +10,7 @@ const mime = require('mime');
 const sharp = require('sharp');
 
 const filenamify = require('../../../utils/filenamify');
-const { MAX_SIZE_TO_GET_ENCODING } = require('../../../constants');
+const { MAX_SIZE_TO_GET_ENCODING, MAX_FILE_SIZE, ALLOWED_MIME_TYPES } = require('../../../constants');
 
 module.exports = {
   inputs: {
@@ -26,6 +26,23 @@ module.exports = {
     const filename = filenamify(inputs.file.filename);
     const mimeType = mime.getType(filename);
     const { size } = inputs.file;
+
+    // Security validation: file size
+    if (size > MAX_FILE_SIZE) {
+      throw new Error('File size exceeds maximum allowed limit');
+    }
+
+    // Security validation: MIME type
+    if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+      throw new Error('File type not allowed');
+    }
+
+    // Additional security: check for dangerous file extensions
+    const dangerousExtensions = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com', '.jar', '.php', '.asp', '.jsp'];
+    const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    if (dangerousExtensions.includes(fileExtension)) {
+      throw new Error('File extension not allowed');
+    }
 
     const { id: uploadedFileId } = await UploadedFile.qm.createOne({
       mimeType,
