@@ -71,13 +71,13 @@ async def main():
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     # --- Register handlers ---
-    # Public handlers (no filter)
-    dp.include_router(public.router)
-
-    # Admin handlers (filtered)
+    # Admin handlers (filtered) - must be registered first to take precedence
     admin.router.message.filter(admin.IsAdmin(ADMIN_IDS))
     admin.router.callback_query.filter(admin.IsAdmin(ADMIN_IDS))
     dp.include_router(admin.router)
+
+    # Public handlers (no filter) - registered after admin to allow admin override
+    dp.include_router(public.router)
 
     # --- Web App Setup ---
     app = web.Application()

@@ -5,6 +5,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
 from bot.api.planka import create_planka_user
+from bot.keyboards.inline import get_main_keyboard
 
 # --- Router Setup ---
 router = Router()
@@ -20,7 +21,7 @@ async def command_start_handler(message: Message) -> None:
     # Assuming we have a way to register users for notifications
     # For now, just acknowledge the start
     await message.answer(
-        f"Your user ID: {user_id}\nHello, {full_name}! You can now receive notifications from the project."
+        f"Your user ID: {user_id}\nHello, {full_name}! You can now receive notifications from the project.",
     )
 
 
