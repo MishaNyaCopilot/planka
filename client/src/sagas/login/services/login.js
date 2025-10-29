@@ -11,12 +11,17 @@ import selectors from '../../../selectors';
 import actions from '../../../actions';
 import api from '../../../api';
 import i18n from '../../../i18n';
-import { setAccessToken } from '../../../utils/access-token-storage';
+import { setAccessToken, getBootstrapCache, setBootstrapCache } from '../../../utils/access-token-storage';
 import Paths from '../../../constants/Paths';
 import AccessTokenSteps from '../../../constants/AccessTokenSteps';
 
 export function* initializeLogin() {
-  const { item: bootstrap } = yield call(api.getBootstrap); // TODO: handle error
+  let bootstrap = getBootstrapCache();
+
+  if (!bootstrap) {
+    ({ item: bootstrap } = yield call(api.getBootstrap)); // TODO: handle error
+    setBootstrapCache(bootstrap);
+  }
 
   yield put(actions.initializeLogin(bootstrap));
 }

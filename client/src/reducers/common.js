@@ -8,6 +8,12 @@ import ActionTypes from '../constants/ActionTypes';
 const initialState = {
   isInitializing: true,
   bootstrap: null,
+  coreLoadingProgress: {
+    user: false,
+    projects: false,
+    board: false,
+    notifications: false,
+  },
 };
 
 // eslint-disable-next-line default-param-last
@@ -35,6 +41,20 @@ export default (state = initialState, { type, payload }) => {
       return {
         ...state,
         isInitializing: false,
+        coreLoadingProgress: {
+          user: false,
+          projects: false,
+          board: false,
+          notifications: false,
+        },
+      };
+    case ActionTypes.CORE_LOADING_PROGRESS:
+      return {
+        ...state,
+        coreLoadingProgress: {
+          ...state.coreLoadingProgress,
+          ...payload,
+        },
       };
     case ActionTypes.CORE_INITIALIZE__BOOTSTRAP_FETCH:
       return {

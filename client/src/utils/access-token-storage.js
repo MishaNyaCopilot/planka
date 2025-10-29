@@ -39,3 +39,40 @@ export const getAccessToken = () => {
 
   return accessToken;
 };
+
+export const setBootstrapCache = (bootstrap) => {
+  try {
+    localStorage.setItem('planka_bootstrap', JSON.stringify({
+      data: bootstrap,
+      timestamp: Date.now(),
+    }));
+  } catch (error) {
+    // Silently fail if localStorage is not available
+  }
+};
+
+export const getBootstrapCache = () => {
+  try {
+    const cached = localStorage.getItem('planka_bootstrap');
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    // Cache for 5 minutes
+    if (Date.now() - timestamp > 5 * 60 * 1000) {
+      localStorage.removeItem('planka_bootstrap');
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const clearBootstrapCache = () => {
+  try {
+    localStorage.removeItem('planka_bootstrap');
+  } catch (error) {
+    // Silently fail
+  }
+};

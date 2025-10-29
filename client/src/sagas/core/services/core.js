@@ -12,6 +12,7 @@ import actions from '../../../actions';
 import api from '../../../api';
 import i18n from '../../../i18n';
 import { removeAccessToken } from '../../../utils/access-token-storage';
+import { clearBootstrapCache } from '../../../utils/access-token-storage';
 
 export function* initializeCore() {
   const { item: bootstrap } = yield call(request, api.getBootstrap); // TODO: handle error
@@ -117,6 +118,7 @@ export function* updateHomeView(value) {
 
 export function* logout(revokeAccessToken) {
   yield call(removeAccessToken);
+  yield call(clearBootstrapCache);
 
   if (revokeAccessToken) {
     yield put(actions.logout.revokeAccessToken());

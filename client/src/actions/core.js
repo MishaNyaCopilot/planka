@@ -67,6 +67,11 @@ initializeCore.fetchBootstrap = (bootstrap) => ({
   },
 });
 
+const updateCoreLoadingProgress = (progress) => ({
+  type: ActionTypes.CORE_LOADING_PROGRESS,
+  payload: progress,
+});
+
 const toggleFavorites = (isEnabled) => ({
   type: ActionTypes.FAVORITES_TOGGLE,
   payload: {
@@ -100,6 +105,7 @@ logout.revokeAccessToken = () => ({
 
 export default {
   initializeCore,
+  updateCoreLoadingProgress,
   toggleFavorites,
   toggleEditMode,
   updateHomeView,
