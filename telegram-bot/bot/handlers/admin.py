@@ -33,11 +33,12 @@ def generate_random_password(length=12):
 
 
 # --- Command Handlers ---
+# Admin start handler (only for admins)
 @router.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    # The IsAdmin filter is applied at the dispatcher level, so we just need one handler
+async def admin_start_handler(message: Message) -> None:
     await message.answer(
-        f"Hello, admin {message.from_user.full_name}!", reply_markup=get_main_keyboard()
+        f"Your user ID: {message.from_user.id}\nHello, admin {message.from_user.full_name}!",
+        reply_markup=get_main_keyboard(),
     )
 
 
