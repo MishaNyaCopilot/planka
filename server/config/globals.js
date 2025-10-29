@@ -20,6 +20,11 @@ module.exports.globals = {
   _: require('lodash'), // eslint-disable-line global-require
 
   /**
+   * Expose validator globally for easier access
+   */
+  validator: require('validator'), // eslint-disable-line global-require
+
+  /**
    *
    * This app was generated without a dependency on the "async" NPM package.
    *

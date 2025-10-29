@@ -13,16 +13,23 @@ import { isUserAdminOrProjectOwner } from '../../../utils/record-helpers';
 import { UserRoles } from '../../../constants/Enums';
 
 export function* fetchCore() {
-  // Parallelize initial API calls
-  const [userResponse, projectsResponse] = yield [
-    call(request, api.getCurrentUser, true),
-    call(request, api.getProjects),
-  ];
-
   const {
     item: user,
     included: { notificationServices: notificationServices1 },
-  } = userResponse;
+  } = yield call(request, api.getCurrentUser, true);
+
+  let config;
+  let webhooks;
+
+  if (user.role === UserRoles.ADMIN) {
+    ({ item: config } = yield call(request, api.getConfig));
+    ({ items: webhooks } = yield call(request, api.getWebhooks));
+  }
+
+  let users1;
+  if (isUserAdminOrProjectOwner(user)) {
+    ({ items: users1 } = yield call(request, api.getUsers));
+  }
 
   const {
     items: projects1,
@@ -36,36 +43,7 @@ export function* fetchCore() {
       customFields: customFields1,
       notificationServices: notificationServices2,
     },
-  } = projectsResponse;
-
-  // Parallelize admin-only calls
-  let config;
-  let webhooks;
-  let users1;
-
-  const adminCalls = [];
-  if (user.role === UserRoles.ADMIN) {
-    adminCalls.push(call(request, api.getConfig));
-    adminCalls.push(call(request, api.getWebhooks));
-  }
-
-  if (isUserAdminOrProjectOwner(user)) {
-    adminCalls.push(call(request, api.getUsers));
-  }
-
-  if (adminCalls.length > 0) {
-    const adminResults = yield adminCalls;
-
-    let resultIndex = 0;
-    if (user.role === UserRoles.ADMIN) {
-      ({ item: config } = adminResults[resultIndex++]);
-      ({ items: webhooks } = adminResults[resultIndex++]);
-    }
-
-    if (isUserAdminOrProjectOwner(user)) {
-      ({ items: users1 } = adminResults[resultIndex++]);
-    }
-  }
+  } = yield call(request, api.getProjects);
 
   let board;
   let card;
@@ -84,19 +62,7 @@ export function* fetchCore() {
   let customFields2;
   let customFieldValues;
 
-  // Parallelize board data and notifications fetching
-  const [boardData, notificationsBody] = yield [
-    call(fetchBoardByCurrentPath),
-    call(request, api.getNotifications),
-  ].map(call => {
-    try {
-      return call;
-    } catch {
-      return null;
-    }
-  });
-
-  if (boardData) {
+  try {
     ({
       board,
       card,
@@ -114,10 +80,12 @@ export function* fetchCore() {
       boardMemberships: boardMemberships2,
       cards: cards1,
       customFields: customFields2,
-    } = boardData);
+    } = yield call(fetchBoardByCurrentPath));
+  } catch {
+    /* empty */
   }
 
-  const body = notificationsBody;
+  const body = yield call(request, api.getNotifications);
 
   let { items: notifications } = body;
 

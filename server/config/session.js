@@ -21,6 +21,18 @@ module.exports.session = {
   secret: process.env.SECRET_KEY,
 
   /**
+   * CSRF protection requires sessions to be enabled
+   * Using memory store for development (not suitable for production)
+   */
+  adapter: 'memory',
+
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+  },
+
+  /**
    *
    * Customize when built-in session support will be skipped.
    *
