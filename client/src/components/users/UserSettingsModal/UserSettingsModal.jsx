@@ -14,7 +14,8 @@ import AccountPane from './AccountPane';
 import PreferencesPane from './PreferencesPane';
 import NotificationsPane from './NotificationsPane';
 import TermsPane from './TermsPane';
-import AboutPane from './AboutPane';
+
+// import AboutPane from './AboutPane';
 
 const UserSettingsModal = React.memo(() => {
   const dispatch = useDispatch();
@@ -51,12 +52,14 @@ const UserSettingsModal = React.memo(() => {
       }),
       render: () => <TermsPane />,
     },
+    /*
     {
       menuItem: t('common.aboutPlanka', {
         context: 'title',
       }),
       render: () => <AboutPane />,
     },
+    */
   ];
 
   return (
