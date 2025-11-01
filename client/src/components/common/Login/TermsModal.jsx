@@ -16,7 +16,7 @@ import Markdown from '../Markdown';
 
 import styles from './TermsModal.module.scss';
 
-const LOCALES = TERMS_LANGUAGES.map((language) => localeByLanguage[language]);
+const LOCALES = TERMS_LANGUAGES.map((language) => localeByLanguage[language]).filter(Boolean);
 
 const TermsModal = React.memo(() => {
   const {
