@@ -50,8 +50,8 @@ services:
       # - S3_FORCE_PATH_STYLE=true
       - DEFAULT_ADMIN_EMAIL=${PLANKA_ADMIN_EMAIL}
       - DEFAULT_ADMIN_PASSWORD=${PLANKA_ADMIN_PASSWORD}
-      - DEFAULT_ADMIN_NAME=Planka Admin
-      - DEFAULT_ADMIN_USERNAME=planka_admin
+      - DEFAULT_ADMIN_NAME=${DEFAULT_ADMIN_NAME}
+      - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME}
     # healthcheck:
     #   test: ["CMD-SHELL", "curl -f http://localhost:1337/api/bootstrap || exit 1"]
     #   interval: 10s
